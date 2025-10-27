@@ -18,8 +18,10 @@ export default function PokemonList({
 }: PokemonListProps) {
   if (pokemons.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500 text-lg">No Pokemon found. Try searching!</p>
+      <div className="text-center py-16">
+        <div className="text-6xl mb-4">🔍</div>
+        <p className="text-gray-500 dark:text-gray-400 text-lg mb-2">No Pokemon found</p>
+        <p className="text-gray-400 dark:text-gray-500 text-sm">Try searching for a Pokemon by name or ID!</p>
       </div>
     );
   }
