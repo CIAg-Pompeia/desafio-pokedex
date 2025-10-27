@@ -47,9 +47,11 @@ function App() {
     try {
       await addFavApi(pokemon.id);
       await loadFavorites();
+      return Promise.resolve();
     } catch (error) {
       console.error('Error adding favorite:', error);
       alert('Failed to add favorite. Make sure the backend is running.');
+      throw error;
     }
   };
 
@@ -62,13 +64,16 @@ function App() {
         });
         if (response.ok) {
           await loadFavorites();
+          return Promise.resolve();
         } else {
           alert('Failed to remove favorite.');
+          throw new Error('Failed to remove favorite');
         }
       }
     } catch (error) {
       console.error('Error removing favorite:', error);
       alert('Failed to remove favorite. Make sure the backend is running.');
+      throw error;
     }
   };
 
@@ -128,8 +133,8 @@ function App() {
               <SearchBar onSearch={handleSearch} />
             </div>
 
-            {selectedTypes.length > 0 && (
-              <div className="mb-6 max-w-4xl mx-auto">
+            {pokemons.length > 0 && (
+              <div className="mb-6 max-w-6xl mx-auto">
                 <TypeFilter selectedTypes={selectedTypes} onToggle={toggleType} />
               </div>
             )}
@@ -137,18 +142,21 @@ function App() {
             {loading && (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                <p className="mt-4 text-gray-600 dark:text-gray-400">Loading Pokemon...</p>
               </div>
             )}
 
-            <div className="max-w-7xl mx-auto">
-              <PokemonList
-                pokemons={filteredPokemons}
-                favorites={favorites}
-                onFavorite={handleAddFavorite}
-                onRemoveFavorite={handleRemoveFavorite}
-                onOpenDetail={setSelectedDetail}
-              />
-            </div>
+            {!loading && (
+              <div className="max-w-7xl mx-auto">
+                <PokemonList
+                  pokemons={filteredPokemons}
+                  favorites={favorites}
+                  onFavorite={handleAddFavorite}
+                  onRemoveFavorite={handleRemoveFavorite}
+                  onOpenDetail={setSelectedDetail}
+                />
+              </div>
+            )}
           </>
         ) : (
           <div className="max-w-3xl mx-auto">

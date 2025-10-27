@@ -17,48 +17,64 @@ export default function PokemonCard({
   onOpenDetail,
 }: PokemonCardProps) {
   const [imageError, setImageError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleFavoriteClick = (e: React.MouseEvent) => {
+  const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isFavorite) {
-      onRemoveFavorite(pokemon.id);
-    } else {
-      onFavorite(pokemon);
+    setIsLoading(true);
+    try {
+      if (isFavorite) {
+        await onRemoveFavorite(pokemon.id);
+      } else {
+        await onFavorite(pokemon);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div
       onClick={() => onOpenDetail(pokemon)}
-      className="bg-white rounded-lg shadow-md p-4 hover:shadow-xl transition-shadow cursor-pointer"
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2 border border-gray-200 dark:border-gray-700"
     >
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-lg font-bold capitalize">{pokemon.name}</h3>
-        <button
-          onClick={handleFavoriteClick}
-          className={`text-2xl ${isFavorite ? 'fill-red-500 text-red-500' : 'hover:fill-red-300'}`}
-          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-        >
-          ♥
-        </button>
-      </div>
-      
-      <div className="text-sm text-gray-600 mb-3">#{pokemon.id.toString().padStart(3, '0')}</div>
-      
-      {!imageError ? (
-        <img
-          src={pokemon.sprite}
-          alt={pokemon.name}
-          className="w-full h-48 object-contain"
-          onError={() => setImageError(true)}
-        />
-      ) : (
-        <div className="w-full h-48 bg-gray-200 rounded flex items-center justify-center">
-          <span className="text-gray-400">No image</span>
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-lg font-bold capitalize text-gray-900 dark:text-white">{pokemon.name}</h3>
+          <button
+            onClick={handleFavoriteClick}
+            disabled={isLoading}
+            className={`text-3xl transition-all duration-300 disabled:opacity-50 ${
+              isLoading 
+                ? 'animate-pulse' 
+                : isFavorite 
+                  ? 'text-red-500 fill-red-500 hover:scale-110' 
+                  : 'text-gray-400 hover:text-red-400 hover:scale-110'
+            }`}
+            aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          >
+            {isLoading ? '⏳' : '❤️'}
+          </button>
         </div>
-      )}
-      
-      <div className="flex gap-2 mt-3 flex-wrap">
+        
+        <div className="text-sm text-gray-500 dark:text-gray-400 mb-3">#{pokemon.id.toString().padStart(3, '0')}</div>
+        
+        <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 mb-3">
+          {!imageError ? (
+            <img
+              src={pokemon.sprite}
+              alt={pokemon.name}
+              className="w-full h-48 object-contain"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div className="w-full h-48 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center">
+              <span className="text-gray-500 dark:text-gray-400">No image</span>
+            </div>
+          )}
+        </div>
+        
+        <div className="flex gap-2 flex-wrap">
         {pokemon.types.map((type) => (
           <span
             key={type}
@@ -86,6 +102,7 @@ export default function PokemonCard({
             {type}
           </span>
         ))}
+      </div>
       </div>
     </div>
   );
